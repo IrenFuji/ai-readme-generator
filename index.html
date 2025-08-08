@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>AI README.md Generator</title>
+        <link rel="icon" type="image/png" href="media/favicon.png">
+        <link
+            href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&display=swap"
+            rel="stylesheet">
+        <link rel="stylesheet" href="style.css" />
+    </head>
+
+    <body>
+        <!-- background -->
+        <div class="bg orb orb-a" aria-hidden="true"></div>
+        <div class="bg orb orb-b" aria-hidden="true"></div>
+
+        <!-- header -->
+        <header class="hero">
+            <div class="hero-inner">
+
+                <!-- brand/toggle -->
+                <div class="brand-row">
+                    <h1 class="brand">README.md</h1>
+                    <div class="theme-switch">
+                        <input type="checkbox" id="themeToggle"
+                            aria-label="Toggle theme">
+                        <label for="themeToggle" class="switch"></label>
+                        <span class="theme-label" id="themeLabel">Light</span>
+                    </div>
+                </div>
+
+                <p class="sub">Generate a clean, accurate README.md from your
+                    code in seconds.</p>
+            </div>
+        </header>
+
+        <!-- main glass card -->
+        <main class="card">
+            <section class="workspace">
+                <div class="pane">
+                    <label class="label">Source Code</label>
+                    <textarea id="codeInput"
+                        placeholder="Paste your code here..."></textarea>
+                </div>
+                <div class="pane">
+                    <label class="label">Preview</label>
+                    <pre
+                        id="readmeOutput">Your README.md will appear here...</pre>
+                </div>
+            </section>
+
+            <div class="toolbar">
+                <button class="btn-liquid"
+                    onclick="generateReadme()"><span>Generate
+                        README</span></button>
+                <button class="btn-liquid"
+                    onclick="copyToClipboard()"><span>Copy to
+                        Clipboard</span></button>
+                <button class="btn-liquid"
+                    onclick="downloadReadme()"><span>Export .md</span></button>
+            </div>
+        </main>
+
+        <!-- footer -->
+        <footer class="footer">
+            <span>© <span id="year"></span> • MIT License • Coded by Iren
+                Fujiharu, Canada</span>
+            <a class="gh" href="https://github.com/IrenOknel" target="_blank"
+                title="View on GitHub">
+                <img src="media/git-cat.png" alt="GitHub"
+                    style="width:35px; height:35px;">
+            </a>
+        </footer>
+
+        <script>
+        document.getElementById('year').textContent = new Date().getFullYear();
+    </script>
+        <script src="script.js"></script>
+    </body>
+
+</html>
