@@ -1,52 +1,43 @@
-// function for README.md file using OpenAI BE
+// generate README
 async function generateReadme() {
-  const code = document.getElementById("codeInput").value; // user input
-  const output = document.getElementById("readmeOutput"); // output container
+  const code = document.getElementById("codeInput").value;
+  const output = document.getElementById("readmeOutput");
 
-  // prevent empty submission
   if (!code.trim()) {
     output.textContent = "Please paste some code to generate README.";
     return;
   }
 
-  output.textContent = "Generating README..."; // ui feedback while loading
+  output.textContent = "Generating README...";
 
   try {
-    // send code to be which proxies OpenAI API
     const response = await fetch("http://localhost:3000/api/generate-readme", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ code }),
     });
 
-    // handle non-OK responses
     if (!response.ok) {
-      const errorData = await response.json();
+      const errorData = await response.json().catch(() => ({}));
       throw new Error(errorData.error || "API request failed");
     }
 
-    // parse and display generated README
     const data = await response.json();
-    const readme = data.readme || "Failed to generate README.";
-    output.textContent = readme;
-  } catch (error) {
-    // Log error and inform user
-    console.error("Error:", error);
-    output.textContent = `Error: ${error.message}`;
+    output.textContent = data.readme || "Failed to generate README.";
+  } catch (err) {
+    console.error("Error:", err);
+    output.textContent = `Error: ${err.message}`;
   }
 }
 
-// Copies the generated README content to clipboard
+// copy README
 function copyToClipboard() {
   const text = document.getElementById("readmeOutput").textContent;
   navigator.clipboard.writeText(text).then(() => {
     alert("README copied to clipboard!");
   });
 }
-
-// Downloads the generated README content as a .md file
+// download README
 function downloadReadme() {
   const content = document.getElementById("readmeOutput").textContent;
   const blob = new Blob([content], { type: "text/markdown" });
@@ -56,40 +47,47 @@ function downloadReadme() {
   a.download = "README.md";
   document.body.appendChild(a);
   a.click();
-  document.body.removeChild(a);
+  a.remove();
   URL.revokeObjectURL(url);
 }
 
-// light/dark toggle
+// theme toggle
 (function () {
+  const THEME_KEY = "theme_v2";
   const checkbox = document.getElementById("themeToggle");
   const label = document.getElementById("themeLabel");
 
-  // initialize from localStorage or system preference
-  const stored = localStorage.getItem("theme");
-  const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-  const isDark = stored ? stored === "dark" : prefersDark;
+  // remove old theme key
+  try {
+    localStorage.removeItem("theme");
+  } catch {}
 
-  document.body.classList.toggle("light", !isDark);
-  checkbox.checked = isDark;
-  label.textContent = isDark ? "Dark" : "Light";
-
-  // toggle on change with smooth label fade
-  checkbox.addEventListener("change", () => {
-    const dark = checkbox.checked;
-
-    // theme swap
+  // apply theme
+  function applyTheme(dark) {
     document.body.classList.toggle("light", !dark);
-    localStorage.setItem("theme", dark ? "dark" : "light");
+    checkbox.checked = dark;
+    label.textContent = dark ? "Dark" : "Light";
+    try {
+      localStorage.setItem(THEME_KEY, dark ? "dark" : "light");
+    } catch {}
+  }
 
-    // label for fade animation
-    label.classList.remove("fade-in", "fade-out");
-    label.classList.add("fade-out");
+  // load saved or default to dark
+  const saved = (() => {
+    try {
+      return localStorage.getItem(THEME_KEY);
+    } catch {
+      return null;
+    }
+  })();
+  const isDark = saved ? saved === "dark" : true;
+  applyTheme(isDark);
 
-    setTimeout(() => {
-      label.textContent = dark ? "Dark" : "Light";
-      label.classList.remove("fade-out");
-      label.classList.add("fade-in");
-    }, 200);
-  });
+  // toggle theme
+  checkbox.addEventListener("change", () => applyTheme(checkbox.checked));
 })();
+
+// export functions
+window.generateReadme = generateReadme;
+window.copyToClipboard = copyToClipboard;
+window.downloadReadme = downloadReadme;

@@ -1,13 +1,14 @@
-// server.js
 const express = require("express");
 const cors = require("cors");
 const axios = require("axios");
-require("dotenv").config();
+const path = require("path");
+require("dotenv").config({ path: path.resolve(__dirname, ".env") });
+
 
 const app = express();
 const PORT = 3000;
 
-// allow your FE origins (localhost and 127.0.0.1 are different!)
+// allow FE origins (localhost and 127.0.0.1 are different!)
 app.use(
   cors({
     origin: ["http://127.0.0.1:5500", "http://localhost:5500"],

@@ -1,7 +1,5 @@
-Css
-
 /* --- variables (dark by default) --- */
-:root {
+body:not(.light) {
   --bg: #05070f;
   --fg: #eaf1ff;
   --muted: #a1b2cc;
