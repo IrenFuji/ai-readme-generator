@@ -1,63 +1,89 @@
-const express = require("express");
-const cors = require("cors");
-const axios = require("axios");
-const path = require("path");
-require("dotenv").config({ path: path.resolve(__dirname, ".env") });
+// generate README
+async function generateReadme() {
+  const code = document.getElementById("codeInput").value;
+  const output = document.getElementById("readmeOutput");
 
-
-const app = express();
-const PORT = 3000;
-
-// allow FE origins (localhost and 127.0.0.1 are different!)
-app.use(
-  cors({
-    origin: ["http://127.0.0.1:5500", "http://localhost:5500"],
-  })
-);
-
-// accept larger code payloads
-app.use(express.json({ limit: "2mb" }));
-
-// simple browser check
-app.get("/health", (req, res) => res.json({ ok: true }));
-
-app.post("/api/generate-readme", async (req, res) => {
-  const { code } = req.body;
-  try {
-    const response = await axios.post(
-      "https://api.openai.com/v1/chat/completions",
-      {
-        model: "gpt-4o",
-        messages: [
-          {
-            role: "system",
-            content:
-              "You generate high-quality README.md files from source code.",
-          },
-          {
-            role: "user",
-            content: `Generate a professional README.md file for the following code:\n\n${code}`,
-          },
-        ],
-        temperature: 0.7,
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
-          "Content-Type": "application/json",
-        },
-      }
-    );
-    res.json({ readme: response.data.choices?.[0]?.message?.content ?? "" });
-  } catch (error) {
-    console.error("OpenAI Error:", error.response?.data || error.message);
-    res.status(error.response?.status || 500).json({
-      error:
-        error.response?.data?.error?.message || error.message || "Server error",
-    });
+  if (!code.trim()) {
+    output.textContent = "Please paste some code to generate README.";
+    return;
   }
-});
 
-app.listen(PORT, () => {
-  console.log(`✅ Server running on http://localhost:${PORT}`);
-});
+  output.textContent = "Generating README...";
+
+  try {
+    const response = await fetch("/api/generate-readme", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ code }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.error || "API request failed");
+    }
+
+    const data = await response.json();
+    output.textContent = data.readme || "Failed to generate README.";
+  } catch (err) {
+    console.error("Error:", err);
+    output.textContent = `Error: ${err.message}`;
+  }
+}
+
+// copy to clipboard
+function copyToClipboard() {
+  const text = document.getElementById("readmeOutput").textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    alert("README copied to clipboard!");
+  });
+}
+// download README
+function downloadReadme() {
+  const content = document.getElementById("readmeOutput").textContent;
+  const blob = new Blob([content], { type: "text/markdown" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "README.md";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+// theme toggle
+(function () {
+  const THEME_KEY = "theme_v2";
+  const checkbox = document.getElementById("themeToggle");
+  const label = document.getElementById("themeLabel");
+
+  try {
+    localStorage.removeItem("theme");
+  } catch {}
+
+  function applyTheme(dark) {
+    document.body.classList.toggle("light", !dark);
+    checkbox.checked = dark;
+    label.textContent = dark ? "Dark" : "Light";
+    try {
+      localStorage.setItem(THEME_KEY, dark ? "dark" : "light");
+    } catch {}
+  }
+
+  const saved = (() => {
+    try {
+      return localStorage.getItem(THEME_KEY);
+    } catch {
+      return null;
+    }
+  })();
+  const isDark = saved ? saved === "dark" : true;
+  applyTheme(isDark);
+
+  checkbox.addEventListener("change", () => applyTheme(checkbox.checked));
+})();
+
+// export helpers
+window.generateReadme = generateReadme;
+window.copyToClipboard = copyToClipboard;
+window.downloadReadme = downloadReadme;
