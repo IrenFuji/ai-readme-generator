@@ -7,12 +7,21 @@ require("dotenv").config();
 const app = express();
 const PORT = 3000;
 
-app.use(cors());
-app.use(express.json());
+// allow your FE origins (localhost and 127.0.0.1 are different!)
+app.use(
+  cors({
+    origin: ["http://127.0.0.1:5500", "http://localhost:5500"],
+  })
+);
+
+// accept larger code payloads
+app.use(express.json({ limit: "2mb" }));
+
+// simple browser check
+app.get("/health", (req, res) => res.json({ ok: true }));
 
 app.post("/api/generate-readme", async (req, res) => {
   const { code } = req.body;
-
   try {
     const response = await axios.post(
       "https://api.openai.com/v1/chat/completions",
@@ -22,7 +31,7 @@ app.post("/api/generate-readme", async (req, res) => {
           {
             role: "system",
             content:
-              "You are a helpful assistant that generates high-quality README.md markdown files from given source code.",
+              "You generate high-quality README.md files from source code.",
           },
           {
             role: "user",
@@ -38,13 +47,13 @@ app.post("/api/generate-readme", async (req, res) => {
         },
       }
     );
-
-    res.json({ readme: response.data.choices[0].message.content });
+    res.json({ readme: response.data.choices?.[0]?.message?.content ?? "" });
   } catch (error) {
     console.error("OpenAI Error:", error.response?.data || error.message);
-    res
-      .status(500)
-      .json({ error: error.response?.data?.error?.message || "Server error" });
+    res.status(error.response?.status || 500).json({
+      error:
+        error.response?.data?.error?.message || error.message || "Server error",
+    });
   }
 });
 
