@@ -11,7 +11,7 @@ async function generateReadme() {
   output.textContent = "Generating README...";
 
   try {
-    const response = await fetch("http://localhost:3000/api/generate-readme", {
+    const response = await fetch("/api/generate-readme", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ code }),
