@@ -1,6 +1,6 @@
 # README.md Generator
 
-A modern web app that generates clean and accurate `README.md` files from your source code in seconds.
+A modern developer tool that generates clean and accurate `README.md` files from your source code in seconds.
 
 ## ✨ Features
 - **Light/Dark Mode** toggle with ambient gradient background.
