@@ -2,19 +2,19 @@
 
 A modern developer tool that generates clean, accurate README.md files from your source code in seconds, saving time, avoiding errors, and boosting developer productivity.
 
-## ✨ Features
+##  Features
 - **Light/Dark Mode** toggle with ambient gradient background.
 - Sleek, responsive glass-style UI.
 - **Generate README.md** instantly from pasted code.
 - Copy to clipboard or download as `.md` file.
 - Fully responsive layout.
 
-## 🚀 Usage
+## Usage
 1. Paste your source code in the left pane.
 2. Click **Generate README**.
 3. Copy or export your generated README.md.
 
-## 🛠 Tech Stack
+## Tech Stack
 - **HTML5**
 - **CSS3** (Glassmorphism, responsive design)
 - **JavaScript** (Frontend logic)
